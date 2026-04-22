@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1MM — One in a Million Momo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+  /* ─── RESET & TOKENS ─────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange:   #F07B14;
+    --orange-2: #FF9A3C;
+    --orange-3: #FFBD6B;
+    --black:    #0A0A0A;
+    --black-2:  #141414;
+    --black-3:  #1E1E1E;
+    --black-4:  #2A2A2A;
+    --white:    #F8F5F0;
+    --white-2:  #E8E3DC;
+    --muted:    #888;
+    --font-hero: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ─── CUSTOM CURSOR ──────────────────────────────────── */
+  #cursor-dot {
+    width: 8px; height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s;
+  }
+  #cursor-ring {
+    width: 32px; height: 32px;
+    border: 1.5px solid var(--orange);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.18s var(--ease);
+    opacity: 0.6;
+  }
+  body:hover #cursor-dot { opacity: 1; }
+  a:hover ~ #cursor-ring, button:hover ~ #cursor-ring { transform: translate(-50%,-50%) scale(1.8); }
+
+  /* ─── NOISE OVERLAY ──────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none; z-index: 9997;
+  }
+
+  /* ─── PAGE LOADER ────────────────────────────────────── */
+  #loader {
+    position: fixed; inset: 0;
+    background: var(--black);
+    z-index: 9990;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 24px;
+    transition: opacity 0.6s var(--ease), visibility 0.6s;
+  }
+  #loader.hidden { opacity: 0; visibility: hidden; }
+  .loader-logo {
+    font-family: var(--font-hero);
+    font-size: clamp(64px, 12vw, 120px);
+    color: var(--white);
+    line-height: 1;
+    overflow: hidden;
+  }
+  .loader-logo span { color: var(--orange); }
+  .loader-bar {
+    width: 200px; height: 2px;
+    background: var(--black-4);
+    border-radius: 2px; overflow: hidden;
+  }
+  .loader-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--orange), var(--orange-2));
+    width: 0%;
+    animation: loadFill 1.4s var(--ease) forwards;
+  }
+  @keyframes loadFill { to { width: 100%; } }
+
+  /* ─── NAV ────────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px clamp(20px, 5vw, 60px);
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.4s, padding 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(20px);
+    padding-top: 14px; padding-bottom: 14px;
+    border-bottom: 1px solid rgba(240,123,20,0.15);
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 12px;
+    text-decoration: none; cursor: none;
+  }
+  .nav-logo-mark {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--orange), var(--orange-2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-hero);
+    font-size: 22px;
+    color: var(--black);
+    font-weight: 900;
+  }
+  .nav-logo-text {
+    font-family: var(--font-hero);
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--white);
+    line-height: 1;
+  }
+  .nav-logo-text small {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: var(--orange);
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex; align-items: center; gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white-2);
+    text-decoration: none;
+    position: relative;
+    cursor: none;
+    transition: color 0.3s;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--orange);
+    transition: width 0.3s var(--ease);
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--orange); }
+  .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+
+  .nav-order-btn {
+    background: var(--orange);
+    color: var(--black);
+    border: none;
+    padding: 10px 24px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-radius: 2px;
+    cursor: none;
+    font-weight: 700;
+    transition: all 0.3s var(--ease);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  }
+  .nav-order-btn:hover {
+    background: var(--orange-2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(240,123,20,0.4);
+  }
+
+  /* Burger */
+  .burger {
+    display: none;
+    flex-direction: column; gap: 5px;
+    background: none; border: none;
+    cursor: none; padding: 8px;
+  }
+  .burger span {
+    display: block; width: 24px; height: 2px;
+    background: var(--white);
+    border-radius: 2px;
+    transition: all 0.3s var(--ease);
+  }
+  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Mobile nav */
+  .mobile-menu {
+    position: fixed; inset: 0;
+    background: var(--black);
+    z-index: 99;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 40px;
+    opacity: 0; visibility: hidden;
+    transition: all 0.4s var(--ease);
+  }
+  .mobile-menu.open { opacity: 1; visibility: visible; }
+  .mobile-menu a {
+    font-family: var(--font-hero);
+    font-size: clamp(48px, 10vw, 72px);
+    color: var(--white);
+    text-decoration: none;
+    letter-spacing: 4px;
+    cursor: none;
+    transition: color 0.3s;
+    transform: translateY(30px);
+    opacity: 0;
+    transition: all 0.4s var(--ease);
+  }
+  .mobile-menu.open a {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .mobile-menu.open a:nth-child(1) { transition-delay: 0.05s; }
+  .mobile-menu.open a:nth-child(2) { transition-delay: 0.1s; }
+  .mobile-menu.open a:nth-child(3) { transition-delay: 0.15s; }
+  .mobile-menu.open a:nth-child(4) { transition-delay: 0.2s; }
+  .mobile-menu.open a:nth-child(5) { transition-delay: 0.25s; }
+  .mobile-menu a:hover { color: var(--orange); }
+  .mobile-menu-line {
+    width: 60px; height: 2px;
+    background: linear-gradient(90deg, var(--orange), transparent);
+  }
+
+  /* ─── PAGES ──────────────────────────────────────────── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ─── HERO ───────────────────────────────────────────── */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex; flex-direction: column;
+    justify-content: center;
+    padding: clamp(80px, 12vw, 140px) clamp(20px, 5vw, 60px) 80px;
+    position: relative; z-index: 2;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(240,123,20,0.12);
+    border: 1px solid rgba(240,123,20,0.3);
+    padding: 6px 14px;
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 28px;
+    width: fit-content;
+    animation: fadeInUp 0.8s var(--ease) 1.6s both;
+  }
+  .hero-badge i { font-size: 10px; }
+
+  .hero-headline {
+    font-family: var(--font-hero);
+    font-size: clamp(72px, 10vw, 140px);
+    line-height: 0.88;
+    letter-spacing: -1px;
+    color: var(--white);
+    margin-bottom: 28px;
+    animation: fadeInUp 0.8s var(--ease) 1.8s both;
+  }
+  .hero-headline .line-orange { color: var(--orange); }
+  .hero-headline .line-stroke {
+    -webkit-text-stroke: 1px var(--white);
+    color: transparent;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 360px;
+    line-height: 1.8;
+    margin-bottom: 44px;
+    animation: fadeInUp 0.8s var(--ease) 2s both;
+  }
+
+  .hero-actions {
+    display: flex; align-items: center; gap: 20px;
+    animation: fadeInUp 0.8s var(--ease) 2.1s both;
+  }
+  .btn-primary {
+    background: var(--orange);
+    color: var(--black);
+    border: none;
+    padding: 16px 36px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: none;
+    transition: all 0.3s var(--ease);
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .btn-primary:hover {
+    background: var(--orange-2);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(240,123,20,0.5);
+  }
+  .btn-ghost {
+    background: none;
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 15px 32px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: none;
+    transition: all 0.3s var(--ease);
+  }
+  .btn-ghost:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+    transform: translateY(-3px);
+  }
+
+  .hero-stats {
+    display: flex; gap: 36px;
+    margin-top: 60px; padding-top: 44px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    animation: fadeInUp 0.8s var(--ease) 2.2s both;
+  }
+  .stat-item {}
+  .stat-num {
+    font-family: var(--font-hero);
+    font-size: 36px;
+    color: var(--orange);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Hero right */
+  .hero-right {
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-visual {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-bg-text {
+    position: absolute;
+    font-family: var(--font-hero);
+    font-size: clamp(120px, 18vw, 220px);
+    color: rgba(240,123,20,0.05);
+    letter-spacing: -4px;
+    white-space: nowrap;
+    user-select: none;
+    animation: floatText 8s ease-in-out infinite;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  @keyframes floatText {
+    0%,100% { transform: translate(-50%,-50%) translateY(0); }
+    50% { transform: translate(-50%,-50%) translateY(-20px); }
+  }
+
+  .hero-momo-container {
+    position: relative; z-index: 2;
+    animation: heroFloat 6s ease-in-out infinite, fadeInScale 1s var(--ease) 1.5s both;
+  }
+  @keyframes heroFloat {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-18px) rotate(2deg); }
+  }
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.7); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .hero-momo-ring {
+    width: clamp(260px, 32vw, 420px);
+    height: clamp(260px, 32vw, 420px);
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, var(--orange), var(--orange-2), var(--orange-3), transparent, var(--orange));
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    animation: spin 20s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hero-momo-inner {
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    border-radius: 50%;
+    background: var(--black-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(100px, 14vw, 180px);
+    animation: counterSpin 20s linear infinite;
+  }
+  @keyframes counterSpin { to { transform: rotate(-360deg); } }
+
+  .hero-float-chip {
+    position: absolute;
+    background: var(--black-3);
+    border: 1px solid rgba(240,123,20,0.3);
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--white-2);
+    white-space: nowrap;
+    animation: fadeInUp 0.8s var(--ease) 2.4s both;
+    backdrop-filter: blur(10px);
+  }
+  .hero-float-chip i { color: var(--orange); margin-right: 6px; }
+  .hero-float-chip:nth-child(2) { top: 18%; right: 8%; animation-delay: 2.5s; }
+  .hero-float-chip:nth-child(3) { bottom: 22%; left: 4%; animation-delay: 2.6s; }
+  .hero-float-chip:nth-child(4) { bottom: 38%; right: 2%; animation-delay: 2.7s; }
+
+  /* Orange diagonal strip */
+  .hero-right::after {
+    content: '';
+    position: absolute; top: 0; left: -1px; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, var(--orange), transparent);
+  }
+
+  /* ─── MARQUEE ────────────────────────────────────────── */
+  .marquee-section {
+    border-top: 1px solid rgba(240,123,20,0.2);
+    border-bottom: 1px solid rgba(240,123,20,0.2);
+    background: var(--black-2);
+    padding: 14px 0;
+    overflow: hidden;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 0;
+    animation: marquee 20s linear infinite;
+    width: max-content;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .marquee-item {
+    display: inline-flex; align-items: center; gap: 16px;
+    padding: 0 32px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .marquee-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--orange);
+    flex-shrink: 0;
+  }
+
+  /* ─── FEATURED SECTION ───────────────────────────────── */
+  .section {
+    padding: clamp(80px, 10vw, 140px) clamp(20px, 5vw, 60px);
+    position: relative;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::before {
+    content: '';
+    width: 24px; height: 1px;
+    background: var(--orange);
+  }
+
+  .section-title {
+    font-family: var(--font-hero);
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 0.92;
+    letter-spacing: -1px;
+    margin-bottom: 20px;
+  }
+
+  /* Featured grid */
+  .featured-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 60px;
+  }
+
+  .featured-card {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    cursor: none;
+    background: var(--black-3);
+  }
+  .featured-card:first-child {
+    grid-row: span 2;
+    aspect-ratio: auto;
+  }
+
+  .featured-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s var(--ease);
+    filter: brightness(0.7) saturate(1.2);
+  }
+  .featured-card:hover img {
+    transform: scale(1.08);
+    filter: brightness(0.5) saturate(1.5);
+  }
+
+  .featured-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 60%);
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: 24px;
+    transition: all 0.4s var(--ease);
+  }
+  .featured-card:first-child .featured-card-overlay { padding: 32px; }
+
+  .featured-card-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .featured-card-name {
+    font-family: var(--font-hero);
+    font-size: clamp(22px, 3vw, 34px);
+    letter-spacing: 1px;
+    color: var(--white);
+    line-height: 1.1;
+  }
+  .featured-card:first-child .featured-card-name {
+    font-size: clamp(34px, 5vw, 52px);
+  }
+  .featured-card-price {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--orange-2);
+    margin-top: 8px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s var(--ease);
+  }
+  .featured-card:hover .featured-card-price {
+    opacity: 1; transform: translateY(0);
+  }
+  .featured-card-arrow {
+    position: absolute; top: 20px; right: 20px;
+    width: 36px; height: 36px;
+    background: var(--orange);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.4s var(--ease);
+    color: var(--black);
+    font-size: 12px;
+  }
+  .featured-card:hover .featured-card-arrow {
+    opacity: 1; transform: scale(1);
+  }
+
+  /* ─── WHY US ─────────────────────────────────────────── */
+  .why-section {
+    background: var(--black-2);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .why-left {
+    padding: clamp(60px, 8vw, 120px) clamp(20px, 5vw, 60px);
+    position: relative;
+  }
+  .why-left::after {
+    content: '';
+    position: absolute; top: 10%; right: 0; bottom: 10%;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(240,123,20,0.3), transparent);
+  }
+  .why-right {
+    padding: clamp(60px, 8vw, 120px) clamp(20px, 5vw, 60px);
+    display: flex; flex-direction: column;
+    gap: 32px;
+  }
+
+  .why-item {
+    display: flex; gap: 20px;
+    align-items: flex-start;
+    padding: 24px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: all 0.3s var(--ease);
+    cursor: default;
+  }
+  .why-item:hover {
+    background: var(--black-3);
+    border-color: rgba(240,123,20,0.2);
+    transform: translateX(8px);
+  }
+  .why-icon {
+    width: 48px; height: 48px; flex-shrink: 0;
+    background: rgba(240,123,20,0.1);
+    border: 1px solid rgba(240,123,20,0.25);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--orange);
+    font-size: 18px;
+    transition: all 0.3s;
+  }
+  .why-item:hover .why-icon {
+    background: var(--orange);
+    color: var(--black);
+  }
+  .why-item-title {
+    font-family: var(--font-hero);
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .why-item-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .why-big-text {
+    font-family: var(--font-hero);
+    font-size: clamp(80px, 12vw, 160px);
+    line-height: 0.9;
+    color: var(--white);
+    letter-spacing: -3px;
+    margin-bottom: 32px;
+  }
+  .why-big-text .accent { color: var(--orange); display: block; }
+  .why-desc {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.9;
+    max-width: 420px;
+    margin-bottom: 40px;
+  }
+  .rating-badge {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: var(--black-3);
+    border: 1px solid rgba(240,123,20,0.2);
+    padding: 14px 20px;
+    border-radius: 4px;
+  }
+  .rating-stars { color: var(--orange); font-size: 14px; letter-spacing: 2px; }
+  .rating-text { font-family: var(--font-mono); font-size: 11px; color: var(--white-2); }
+  .rating-num { font-family: var(--font-hero); font-size: 28px; color: var(--orange); line-height: 1; }
+
+  /* ─── CTA STRIP ──────────────────────────────────────── */
+  .cta-strip {
+    background: var(--orange);
+    padding: clamp(48px, 6vw, 80px) clamp(20px, 5vw, 60px);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 40px;
+    position: relative; overflow: hidden;
+  }
+  .cta-strip::before {
+    content: 'MOMO';
+    position: absolute;
+    font-family: var(--font-hero);
+    font-size: 180px;
+    color: rgba(0,0,0,0.07);
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    user-select: none;
+  }
+  .cta-strip-text {
+    font-family: var(--font-hero);
+    font-size: clamp(32px, 5vw, 60px);
+    color: var(--black);
+    line-height: 1;
+    position: relative; z-index: 1;
+  }
+  .cta-strip-sub {
+    font-size: 14px;
+    color: rgba(0,0,0,0.6);
+    margin-top: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+  .btn-dark {
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    padding: 16px 36px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: none;
+    transition: all 0.3s var(--ease);
+    white-space: nowrap;
+    position: relative; z-index: 1;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .btn-dark:hover {
+    background: var(--black-3);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  }
+
+  /* ─── MENU PAGE ──────────────────────────────────────── */
+  .menu-hero {
+    min-height: 40vh;
+    display: flex; align-items: flex-end;
+    padding: 120px clamp(20px, 5vw, 60px) 60px;
+    position: relative; overflow: hidden;
+    background: var(--black-2);
+  }
+  .menu-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      rgba(240,123,20,0.03) 0px, rgba(240,123,20,0.03) 1px,
+      transparent 1px, transparent 40px
+    );
+  }
+  .menu-hero-content { position: relative; z-index: 1; }
+
+  .menu-tabs {
+    display: flex; gap: 0;
+    padding: 0 clamp(20px, 5vw, 60px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: var(--black-2);
+    position: sticky; top: 68px; z-index: 50;
+  }
+  .menu-tabs::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    background: none; border: none;
+    padding: 20px 28px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: none;
+    transition: all 0.3s;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab-btn.active, .tab-btn:hover {
+    color: var(--orange);
+    border-bottom-color: var(--orange);
+  }
+
+  .menu-body {
+    padding: 60px clamp(20px, 5vw, 60px);
+  }
+
+  .menu-category {
+    display: none;
+    animation: fadeInUp 0.5s var(--ease);
+  }
+  .menu-category.active { display: block; }
+
+  .menu-category-title {
+    font-family: var(--font-hero);
+    font-size: clamp(36px, 5vw, 56px);
+    color: var(--white);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .menu-category-desc {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    letter-spacing: 1px;
+    margin-bottom: 48px;
+  }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px;
+  }
+
+  .menu-card {
+    background: var(--black-2);
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+    transition: all 0.4s var(--ease);
+    border: 1px solid transparent;
+  }
+  .menu-card:hover {
+    border-color: rgba(240,123,20,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  }
+
+  .menu-card-img {
+    width: 100%; aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s var(--ease), filter 0.4s;
+    filter: brightness(0.85) saturate(1.2);
+  }
+  .menu-card:hover .menu-card-img {
+    transform: scale(1.05);
+    filter: brightness(0.7) saturate(1.4);
+  }
+
+  .menu-card-body { padding: 20px 22px 24px; }
+  .menu-card-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .menu-card-name {
+    font-family: var(--font-hero);
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--white);
+    line-height: 1.1;
+  }
+  .menu-card-price {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--orange);
+    white-space: nowrap;
+  }
+  .menu-card-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .menu-card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .menu-tag {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    border: 1px solid rgba(240,123,20,0.3);
+    color: var(--orange);
+  }
+
+  .veg-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #2ecc71;
+    border: 1px solid #27ae60;
+    display: inline-block;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+
+  /* ─── ABOUT PAGE ─────────────────────────────────────── */
+  .about-hero {
+    min-height: 55vh;
+    background: var(--black-2);
+    position: relative;
+    display: flex; align-items: center;
+    padding: 120px clamp(20px, 5vw, 60px) 80px;
+    overflow: hidden;
+  }
+  .about-hero::before {
+    content: '1MM';
+    position: absolute;
+    font-family: var(--font-hero);
+    font-size: clamp(200px, 30vw, 380px);
+    color: rgba(240,123,20,0.04);
+    right: -4%;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+  .about-block {
+    padding: clamp(48px, 6vw, 80px) clamp(20px, 5vw, 60px);
+    background: var(--black-2);
+  }
+  .about-block:nth-child(even) { background: var(--black-3); }
+  .about-block-num {
+    font-family: var(--font-hero);
+    font-size: 80px;
+    color: rgba(240,123,20,0.15);
+    line-height: 1;
+    margin-bottom: -20px;
+  }
+  .about-block-title {
+    font-family: var(--font-hero);
+    font-size: clamp(28px, 3vw, 40px);
+    color: var(--white);
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  .about-block-text {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.9;
+  }
+
+  .timeline {
+    padding: clamp(60px, 8vw, 100px) clamp(20px, 5vw, 60px);
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: clamp(20px, 5vw, 60px);
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(240,123,20,0.4), transparent);
+  }
+
+  .timeline-item {
+    padding-left: 48px;
+    padding-bottom: 48px;
+    position: relative;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 4px;
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: var(--orange);
+    box-shadow: 0 0 0 4px rgba(240,123,20,0.2);
+  }
+  .timeline-year {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .timeline-title {
+    font-family: var(--font-hero);
+    font-size: 28px;
+    letter-spacing: 1px;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .timeline-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 500px;
+  }
+
+  /* ─── EVENTS PAGE ────────────────────────────────────── */
+  .events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2px;
+    padding: 60px clamp(20px, 5vw, 60px);
+  }
+
+  .event-card {
+    background: var(--black-2);
+    overflow: hidden;
+    cursor: none;
+    transition: all 0.4s var(--ease);
+    border: 1px solid transparent;
+    position: relative;
+  }
+  .event-card:hover {
+    border-color: rgba(240,123,20,0.3);
+    transform: translateY(-6px);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+  }
+  .event-card-top {
+    background: linear-gradient(135deg, var(--orange) 0%, var(--orange-3) 100%);
+    padding: 32px 28px;
+    position: relative; overflow: hidden;
+  }
+  .event-card-top::after {
+    content: '';
+    position: absolute; bottom: -20px; right: -20px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.1);
+  }
+  .event-date {
+    font-family: var(--font-hero);
+    font-size: 60px;
+    color: var(--black);
+    line-height: 0.9;
+  }
+  .event-month {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(0,0,0,0.6);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .event-card-body { padding: 24px 28px; }
+  .event-title {
+    font-family: var(--font-hero);
+    font-size: 26px;
+    letter-spacing: 1px;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .event-desc { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+  .event-meta {
+    display: flex; gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--orange);
+  }
+  .event-meta span { display: flex; align-items: center; gap: 6px; }
+  .event-meta i { font-size: 10px; }
+
+  /* ─── CONTACT PAGE ───────────────────────────────────── */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    min-height: 70vh;
+  }
+  .contact-left {
+    background: var(--orange);
+    padding: clamp(60px, 8vw, 100px) clamp(20px, 5vw, 60px);
+    position: relative; overflow: hidden;
+  }
+  .contact-left::after {
+    content: '';
+    position: absolute; bottom: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.08);
+  }
+  .contact-left-title {
+    font-family: var(--font-hero);
+    font-size: clamp(48px, 7vw, 80px);
+    color: var(--black);
+    line-height: 0.9;
+    letter-spacing: -1px;
+    margin-bottom: 40px;
+  }
+  .contact-info-item {
+    display: flex; align-items: flex-start; gap: 16px;
+    margin-bottom: 28px;
+    position: relative; z-index: 1;
+  }
+  .contact-info-icon {
+    width: 40px; height: 40px; flex-shrink: 0;
+    background: rgba(0,0,0,0.1);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    color: var(--black);
+  }
+  .contact-info-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.5);
+    margin-bottom: 2px;
+  }
+  .contact-info-val {
+    font-size: 14px;
+    color: var(--black);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .contact-right {
+    background: var(--black-2);
+    padding: clamp(60px, 8vw, 100px) clamp(20px, 5vw, 60px);
+  }
+  .contact-form-title {
+    font-family: var(--font-hero);
+    font-size: 36px;
+    letter-spacing: 2px;
+    color: var(--white);
+    margin-bottom: 32px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .form-input, .form-textarea {
+    width: 100%;
+    background: var(--black-3);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 14px 16px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--white);
+    border-radius: 2px;
+    outline: none;
+    transition: all 0.3s;
+    cursor: none;
+  }
+  .form-input:focus, .form-textarea:focus {
+    border-color: var(--orange);
+    background: var(--black-4);
+    box-shadow: 0 0 0 3px rgba(240,123,20,0.1);
+  }
+  .form-textarea { resize: vertical; min-height: 120px; }
+
+  /* ─── FOOTER ─────────────────────────────────────────── */
+  footer {
+    background: var(--black);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 60px clamp(20px, 5vw, 60px) 32px;
+  }
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 40px; flex-wrap: wrap;
+    padding-bottom: 48px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 32px;
+  }
+  .footer-brand {
+    max-width: 300px;
+  }
+  .footer-brand-name {
+    font-family: var(--font-hero);
+    font-size: 40px;
+    color: var(--white);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .footer-brand-name span { color: var(--orange); }
+  .footer-brand-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .footer-links-group { }
+  .footer-links-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 20px;
+  }
+  .footer-links { list-style: none; }
+  .footer-links li { margin-bottom: 10px; }
+  .footer-links a {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    cursor: none;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--white); }
+
+  .footer-social {
+    display: flex; gap: 12px; margin-top: 20px;
+  }
+  .social-btn {
+    width: 36px; height: 36px;
+    background: var(--black-3);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: none;
+    transition: all 0.3s var(--ease);
+    text-decoration: none;
+  }
+  .social-btn:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: var(--black);
+    transform: translateY(-3px);
+  }
+
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .footer-copy {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .footer-copy span { color: var(--orange); }
+  .footer-hours {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .online-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #2ecc71;
+    animation: pulse-green 2s ease-in-out infinite;
+  }
+  @keyframes pulse-green {
+    0%,100% { box-shadow: 0 0 0 0 rgba(46,204,113,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(46,204,113,0); }
+  }
+
+  /* ─── ANIMATIONS ─────────────────────────────────────── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ─── RESPONSIVE ─────────────────────────────────────── */
+  @media (max-width: 900px) {
+    #hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .hero-left { min-height: 100vh; }
+    .why-section { grid-template-columns: 1fr; }
+    .why-left::after { display: none; }
+    .about-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .featured-grid { grid-template-columns: 1fr 1fr; }
+    .featured-card:first-child { grid-column: 1/-1; height: 280px; }
+    .nav-links, .nav-order-btn { display: none; }
+    .burger { display: flex; }
+    .footer-top { flex-direction: column; }
+  }
+
+  @media (max-width: 600px) {
+    .featured-grid { grid-template-columns: 1fr; }
+    .featured-card:first-child { height: 240px; }
+    .hero-stats { gap: 24px; }
+    .cta-strip { flex-direction: column; text-align: center; }
+    .contact-left-title { font-size: 40px; }
+    .events-grid { grid-template-columns: 1fr; }
+    .menu-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Page transition */
+  .page-transition {
+    position: fixed; inset: 0;
+    background: var(--orange);
+    z-index: 9989;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s var(--ease);
+    pointer-events: none;
+  }
+  .page-transition.enter { transform: scaleX(1); }
+  .page-transition.exit {
+    transform-origin: right;
+    transform: scaleX(0);
+  }
+
+  /* Scroll indicator */
+  .scroll-progress {
+    position: fixed; top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--orange), var(--orange-2));
+    z-index: 9999;
+    width: 0%;
+    transition: width 0.1s;
+  }
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- Scroll progress -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- Page transition overlay -->
+<div class="page-transition" id="pageTransition"></div>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="loader-logo"><span>1</span>MM</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<!-- Nav -->
+<nav id="mainNav">
+  <a class="nav-logo" href="#" data-page="home">
+    <div class="nav-logo-mark">1MM</div>
+    <div class="nav-logo-text">
+      ONE IN A MILLION
+      <small>— MOMO —</small>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#" data-page="home" class="active">Home</a></li>
+    <li><a href="#" data-page="menu">Menu</a></li>
+    <li><a href="#" data-page="about">About</a></li>
+    <li><a href="#" data-page="events">Events</a></li>
+    <li><a href="#" data-page="contact">Contact</a></li>
+  </ul>
+  <button class="nav-order-btn" data-page="menu">Order Now</button>
+  <button class="burger" id="burgerBtn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#" data-page="home">Home</a>
+  <div class="mobile-menu-line"></div>
+  <a href="#" data-page="menu">Menu</a>
+  <a href="#" data-page="about">About</a>
+  <a href="#" data-page="events">Events</a>
+  <a href="#" data-page="contact">Contact</a>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- HOME PAGE -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <i class="fa-solid fa-star"></i>
+        Guwahati's Finest Momo Since 2019
+      </div>
+      <h1 class="hero-headline">
+        <span>ONE IN</span><br>
+        <span class="line-orange">A MILLION</span><br>
+        <span class="line-stroke">MOMO</span>
+      </h1>
+      <p class="hero-sub">
+        Hand-folded dumplings kissed by flame, steeped in 14-secret-ingredient sauces. 
+        Every bite is a memory waiting to happen.
+      </p>
+      <div class="hero-actions">
+        <button class="btn-primary" data-page="menu">
+          <i class="fa-solid fa-utensils" style="margin-right:8px"></i>Explore Menu
+        </button>
+        <button class="btn-ghost" data-page="contact">
+          Find Us
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num">4.5★</div>
+          <div class="stat-label">Google Rating</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">222+</div>
+          <div class="stat-label">Reviews</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">10+</div>
+          <div class="stat-label">Varieties</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">₹59</div>
+          <div class="stat-label">Starts From</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-visual">
+        <div class="hero-bg-text">MOMO</div>
+        <div class="hero-momo-container">
+          <div class="hero-momo-ring">
+            <div class="hero-momo-inner">🥟</div>
+          </div>
+        </div>
+        <div class="hero-float-chip" style="top:18%;right:8%;animation-delay:2.5s">
+          <i class="fa-solid fa-fire"></i>KOREAN SPICY ₹79
+        </div>
+        <div class="hero-float-chip" style="bottom:26%;left:6%;animation-delay:2.6s">
+          <i class="fa-solid fa-leaf"></i>100% VEG OPTIONS
+        </div>
+        <div class="hero-float-chip" style="bottom:42%;right:4%;animation-delay:2.7s">
+          <i class="fa-solid fa-location-dot"></i>KRC Road, Guwahati
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Marquee -->
+  <div class="marquee-section">
+    <div class="marquee-track" id="marqueeTrack">
+      <div class="marquee-item"><span class="marquee-dot"></span>Asli Momo</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Fried Momo</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Korean Spicy</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Pizza Momo</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Freyo Tower</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Karare Momo</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Tibetan Bao</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Wet Noodles</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Korean Bhel</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Banta Soda</div>
+      <!-- duplicate for seamless loop -->
+      <div class="marquee-item"><span class="marquee-dot"></span>Asli Momo</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Fried Momo</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Korean Spicy</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Pizza Momo</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Freyo Tower</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Karare Momo</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Tibetan Bao</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Wet Noodles</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Korean Bhel</div>
+      <div class="marquee-item"><span class="marquee-dot"></span>Banta Soda</div>
+    </div>
+  </div>
+
+  <!-- Featured -->
+  <section class="section">
+    <div class="section-label reveal">Our Signature Picks</div>
+    <h2 class="section-title reveal reveal-delay-1">CROWD<br><span style="color:var(--orange)">FAVOURITES</span></h2>
+    <div class="featured-grid reveal reveal-delay-2">
+      <div class="featured-card">
+        <img src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=800&q=80" alt="Momos" loading="lazy">
+        <div class="featured-card-overlay">
+          <div class="featured-card-tag">Chef's Signature</div>
+          <div class="featured-card-name">Korean Spicy Momo</div>
+          <div class="featured-card-price">Veg ₹79 · Cheese ₹89</div>
+        </div>
+        <div class="featured-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+      <div class="featured-card">
+        <img src="https://images.unsplash.com/photo-1625398407796-82650a8c135f?w=600&q=80" alt="Fried Momo" loading="lazy">
+        <div class="featured-card-overlay">
+          <div class="featured-card-tag">Golden Crispy</div>
+          <div class="featured-card-name">Fried Momo</div>
+          <div class="featured-card-price">Veg ₹69 · Cheese ₹79</div>
+        </div>
+        <div class="featured-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+      <div class="featured-card">
+        <img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&q=80" alt="Noodles" loading="lazy">
+        <div class="featured-card-overlay">
+          <div class="featured-card-tag">Comfort Bowl</div>
+          <div class="featured-card-name">Wet Noodles</div>
+          <div class="featured-card-price">Veg ₹119</div>
+        </div>
+        <div class="featured-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+      <div class="featured-card">
+        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80" alt="Bao" loading="lazy">
+        <div class="featured-card-overlay">
+          <div class="featured-card-tag">Tibetan Classic</div>
+          <div class="featured-card-name">Tibetan Bao</div>
+          <div class="featured-card-price">Veg ₹59 · Cheese ₹69</div>
+        </div>
+        <div class="featured-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+      <div class="featured-card">
+        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&q=80" alt="Pizza Momo" loading="lazy">
+        <div class="featured-card-overlay">
+          <div class="featured-card-tag">Fan Favourite</div>
+          <div class="featured-card-name">Pizza Momo</div>
+          <div class="featured-card-price">@ ₹99</div>
+        </div>
+        <div class="featured-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why section -->
+  <section class="why-section">
+    <div class="why-left">
+      <div class="why-big-text">
+        WHY
+        <span class="accent">WE'RE</span>
+        DIFF.
+      </div>
+      <p class="why-desc">
+        We don't just make momos. We craft an experience — from the way each dumpling is folded, to the sauce that's been perfected over years of late-night experiments.
+      </p>
+      <div class="rating-badge reveal">
+        <div>
+          <div class="rating-num">4.5</div>
+          <div class="rating-stars">★★★★½</div>
+        </div>
+        <div class="rating-text">Based on 222+<br>Google Reviews</div>
+      </div>
+    </div>
+    <div class="why-right">
+      <div class="why-item reveal">
+        <div class="why-icon"><i class="fa-solid fa-seedling"></i></div>
+        <div>
+          <div class="why-item-title">100% Vegetarian</div>
+          <div class="why-item-desc">Pure veg kitchen. No cross-contamination, no compromise. Every item on our menu respects your diet.</div>
+        </div>
+      </div>
+      <div class="why-item reveal reveal-delay-1">
+        <div class="why-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
+        <div>
+          <div class="why-item-title">Made Fresh Daily</div>
+          <div class="why-item-desc">No frozen batch. Every momo is hand-folded and prepared fresh — you can taste the difference.</div>
+        </div>
+      </div>
+      <div class="why-item reveal reveal-delay-2">
+        <div class="why-icon"><i class="fa-solid fa-bowl-food"></i></div>
+        <div>
+          <div class="why-item-title">14 Secret Ingredients</div>
+          <div class="why-item-desc">Our special sauce recipe is a closely guarded secret. It's what makes every bite unforgettable.</div>
+        </div>
+      </div>
+      <div class="why-item reveal reveal-delay-3">
+        <div class="why-icon"><i class="fa-solid fa-wallet"></i></div>
+        <div>
+          <div class="why-item-title">Pocket Friendly</div>
+          <div class="why-item-desc">Premium taste without the premium price tag. Fill up for ₹1–₹200 per person.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-strip reveal">
+    <div>
+      <div class="cta-strip-text">READY TO EAT<br>LIKE A BILLIONAIRE?</div>
+      <div class="cta-strip-sub">Dine in · Takeaway · Swiggy & Zomato</div>
+    </div>
+    <button class="btn-dark" data-page="menu">
+      <i class="fa-solid fa-arrow-right" style="margin-right:8px"></i>Browse Full Menu
+    </button>
+  </div>
+
+</div><!-- /page-home -->
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- MENU PAGE -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="page" id="page-menu">
+
+  <div class="menu-hero">
+    <div class="menu-hero-content">
+      <div class="section-label">What We Serve</div>
+      <h1 class="section-title">THE<br><span style="color:var(--orange)">MENU</span></h1>
+      <p style="color:var(--muted);font-size:14px;margin-top:12px;font-family:var(--font-mono);letter-spacing:1px">
+        Millionaire Menu · Billionaire Menu · Add-Ons
+      </p>
+    </div>
+  </div>
+
+  <div class="menu-tabs" id="menuTabs">
+    <button class="tab-btn active" data-tab="millionaire">Millionaire Menu</button>
+    <button class="tab-btn" data-tab="billionaire">Billionaire Menu</button>
+    <button class="tab-btn" data-tab="addons">Add-Ons</button>
+  </div>
+
+  <div class="menu-body">
+
+    <!-- Millionaire Menu -->
+    <div class="menu-category active" id="tab-millionaire">
+      <div class="menu-category-title">MILLIONAIRE MENU</div>
+      <div class="menu-category-desc">The classics. Hand-folded, soul-satisfying momos.</div>
+      <div class="menu-grid">
+
+        <div class="menu-card">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&q=80" alt="Asli Momo" loading="lazy">
+          <div class="menu-card-body">
+            <div class="menu-card-top">
+              <div class="menu-card-name"><span class="veg-dot"></span>Asli Momo</div>
+              <div class="menu-card-price">₹59</div>
+            </div>
+            <p class="menu-card-desc">The original. Delicate steamed dumplings stuffed with a perfectly spiced vegetable mix. Served with house chutney.</p>
+            <div class="menu-card-tags"><span class="menu-tag">Steamed</span><span class="menu-tag">Classic</span></div>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1625398407796-82650a8c135f?w=600&q=80" alt="Fried Momo" loading="lazy">
+          <div class="menu-card-body">
+            <div class="menu-card-top">
+              <div class="menu-card-name"><span class="veg-dot"></span>Fried Momo</div>
+              <div class="menu-card-price">₹69</div>
+            </div>
+            <p class="menu-card-desc">Steamed first, then deep-fried to golden perfection. Crisp shell, soft filling. Dangerously addictive.</p>
+            <div class="menu-card-tags"><span class="menu-tag">Fried</span><span class="menu-tag">Crispy</span></div>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=600&q=80" alt="Karare Momo" loading="lazy">
+          <div class="menu-card-body">
+            <div class="menu-card-top">
+              <div class="menu-card-name"><span class="veg-dot"></span>Karare Momo</div>
+              <div class="menu-card-price">₹79</div>
+            </div>
+            <p class="menu-card-desc">Extra-crispy battered momos tossed in a tangy masala glaze. Crunchy outside, juicy inside.</p>
+            <div class="menu-card-tags"><span class="menu-tag">Battered</span><span class="menu-tag">Spicy</span></div>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600&q=80" alt="Korean Spicy Momo" loading="lazy">
+          <div class="menu-card-body">
+            <div class="menu-card-top">
+              <div class="menu-card-name"><span class="veg-dot"></span>Korean Spicy Momo</div>
+              <div class="menu-card-price">₹79</div>
+            </div>
+            <p class="menu-card-desc">Inspired by Korean gochujang flavours. Fiery, umami-rich, and absolutely unforgettable. Not for the faint-hearted.</p>
+            <div class="menu-card-tags"><span class="menu-tag">Spicy</span><span class="menu-tag">Korean Fusion</span></div>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1607330289024-1535c6b4e1c1?w=600&q=80" alt="Kothey BG Momo" loading="lazy">
+          <div class="menu-card-body">
+            <div class="menu-card-top">
+              <div class="menu-card-name"><span class="veg-dot"></span>Kothey BG Momo</div>
+              <div class="menu-card-price">₹99</div>
+            </div>
+            <p class="menu-card-desc">Pan-fried bottoms, steamed tops. Half crispy, half tender. A hybrid dumpling masterpiece.</p>
+            <div class="menu-card-tags"><span class="menu-tag">Pan-fried</span><span class="menu-tag">Premium</span></div>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&q=80" alt="Pizza Momo" loading="lazy">
+          <div class="menu-card-body">
+            <div class="menu-card-top">
+              <div class="menu-card-name"><span class="veg-dot"></span>Pizza Momo</div>
+              <div class="menu-card-price">₹99</div>
+            </div>
+            <p class="menu-card-desc">Where Italy meets the Himalayas. Open-top momo loaded with pizza sauce, cheese, and peppers. Made with a flame gun.</p>
+            <div class="menu-card-tags"><span class="menu-tag">Flame Gun</span><span class="menu-tag">Fusion</span><span class="menu-tag">Must Try</span></div>
+          </div>
+        </div>
+
+      </div>
+      <p style="margin-top:24px;font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:1px">
+        * Cheese variants available at ₹20 extra · All prices inclusive of taxes
+      </p>
+    </div>
+
+    <!-- Billionaire Menu -->
+    <div class="menu-category" id="tab-billionaire">
+      <div class="menu-category-title">BILLIONAIRE MENU</div>
+      <div class="menu-category-desc">The next level. Bigger, bolder, more extravagant.</div>
+      <div class="menu-grid">
+
+        <div class="menu-card">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=600&q=80" alt="Wet Noodles" loading="lazy">
+          <div class="menu-card-body">
+            <div class="menu-card-top">
+              <div class="menu-card-name"><span class="veg-dot"></span>Wet Noodles</div>
+              <div class="menu-card-price">₹119</div>
+            </div>
+            <p class="menu-card-desc">Silky noodles swimming in a rich, spiced broth topped with crispy onions and fresh herbs. A bowl of warmth.</p>
+            <div class="menu-card-tags"><span class="menu-tag">Noodles</span><span class="menu-tag">Comfort</span></div>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1562802378-063ec186a863?w=600&q=80" alt="Korean Bhel" loading="lazy">
+          <div class="menu-card-body">
+            <div class="menu-card-top">
+              <div class="menu-card-name"><span class="veg-dot"></span>Korean Bhel</div>
+              <div class="menu-card-price">₹99</div>
+            </div>
+            <p class="menu-card-desc">Indian street food meets Korean spice. Crispy noodles, fresh vegetables, house sauces. An explosion in every bite.</p>
+            <div class="menu-card-tags"><span class="menu-tag">Fusion</span><span class="menu-tag">Snack</span></div>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80" alt="Tibetan Bao" loading="lazy">
+          <div class="menu-card-body">
+            <div class="menu-card-top">
+              <div class="menu-card-name"><span class="veg-dot"></span>Tibetan Bao</div>
+              <div class="menu-card-price">₹59</div>
+            </div>
+            <p class="menu-card-desc">Fluffy steamed buns filled with spiced veggies and patty, topped with sweet-spicy sauce. Low calorie comfort food.</p>
+            <div class="menu-card-tags"><span class="menu-tag">Bao</span><span class="menu-tag">Low Calorie</span></div>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=600&q=80" alt="Freyo Tower" loading="lazy">
+          <div class="menu-card-body">
+            <div class="menu-card-top">
+              <div class="menu-card-name"><span class="veg-dot"></span>Freyo Tower</div>
+              <div class="menu-card-price">₹149</div>
+            </div>
+            <p class="menu-card-desc">8 pieces of unique momos stacked in a tower with Masala Coke or Masala Sprite. The ultimate sharing platter.</p>
+            <div class="menu-card-tags"><span class="menu-tag">Sharing</span><span class="menu-tag">Premium</span><span class="menu-tag">With Drink</span></div>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&q=80" alt="Banta Soda" loading="lazy">
+          <div class="menu-card-body">
+            <div class="menu-card-top">
+              <div class="menu-card-name"><span class="veg-dot"></span>Banta Soda</div>
+              <div class="menu-card-price">₹49</div>
+            </div>
+            <p class="menu-card-desc">The beloved Indian marble-stopper bottle. Refreshing, fizzy, nostalgic. The perfect momo companion.</p>
+            <div class="menu-card-tags"><span class="menu-tag">Drink</span><span class="menu-tag">Refreshing</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Add-Ons -->
+    <div class="menu-category" id="tab-addons">
+      <div class="menu-category-title">ADD-ONS</div>
+      <div class="menu-category-desc">Customize your order. Every little detail matters.</div>
+      <div class="menu-grid" style="grid-template-columns: repeat(auto-fill, minmax(240px,1fr))">
+
+        <div class="menu-card">
+          <div class="menu-card-body" style="padding:32px 24px">
+            <div class="menu-card-top">
+              <div class="menu-card-name">Mineral Water</div>
+              <div class="menu-card-price">₹10</div>
+            </div>
+            <p class="menu-card-desc">Cold, clean mineral water.</p>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-body" style="padding:32px 24px">
+            <div class="menu-card-top">
+              <div class="menu-card-name">Mayo Wayo</div>
+              <div class="menu-card-price">₹10</div>
+            </div>
+            <p class="menu-card-desc">Creamy house mayonnaise dip for extra richness.</p>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-body" style="padding:32px 24px">
+            <div class="menu-card-top">
+              <div class="menu-card-name">Packing Charges</div>
+              <div class="menu-card-price">₹5+</div>
+            </div>
+            <p class="menu-card-desc">2–4 plates ₹10 · 4 plates & above ₹20</p>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-body" style="padding:32px 24px">
+            <div class="menu-card-top">
+              <div class="menu-card-name">Extra Cheese</div>
+              <div class="menu-card-price">₹20</div>
+            </div>
+            <p class="menu-card-desc">Add cheese to any momo variety. Because cheese makes everything better.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div><!-- /page-menu -->
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- ABOUT PAGE -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="page" id="page-about">
+
+  <div class="about-hero">
+    <div class="about-hero-content">
+      <div class="section-label">Our Story</div>
+      <h1 class="section-title">BORN IN<br><span style="color:var(--orange)">GUWAHATI</span></h1>
+      <p style="color:var(--muted);max-width:500px;font-size:15px;margin-top:20px;line-height:1.8">
+        From a small stall idea to Assam's most talked-about momo destination. This is the story of 1MM.
+      </p>
+    </div>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-block">
+      <div class="about-block-num">01</div>
+      <div class="about-block-title">The Obsession</div>
+      <p class="about-block-text">It started with a simple obsession — why couldn't momos be as exciting as any other street food? We spent months perfecting ratios, testing sauces, and folding hundreds of dumplings until we found it: the perfect momo.</p>
+    </div>
+    <div class="about-block">
+      <div class="about-block-num">02</div>
+      <div class="about-block-title">The Secret Sauce</div>
+      <p class="about-block-text">Our 14-ingredient sauce recipe is our most guarded secret. Each ingredient plays a role — heat, depth, brightness, umami. Together they create something that can't be replicated. Our regulars can recognise the taste blindfolded.</p>
+    </div>
+    <div class="about-block">
+      <div class="about-block-num">03</div>
+      <div class="about-block-title">Veg Always</div>
+      <p class="about-block-text">We made a deliberate choice: 100% vegetarian, always. This lets us focus on perfecting vegetable-based fillings instead of being mediocre at many things. Our veg momos beat most non-veg competitors — that's our quiet pride.</p>
+    </div>
+    <div class="about-block">
+      <div class="about-block-num">04</div>
+      <div class="about-block-title">The Community</div>
+      <p class="about-block-text">1MM isn't just a restaurant. It's become a gathering spot for Guwahati's students, foodies, and families. With 960+ followers and 222+ reviews, every plate we serve is a new friendship made over food.</p>
+    </div>
+  </div>
+
+  <div class="timeline section" style="padding-left:clamp(60px,8vw,120px)">
+    <div class="section-label" style="margin-bottom:40px">How We Got Here</div>
+    <div class="timeline-item">
+      <div class="timeline-year">2019</div>
+      <div class="timeline-title">The Beginning</div>
+      <p class="timeline-text">1MM opens its doors at Kumarpara, KRC Road, Guwahati. Word spreads fast — there's something genuinely different happening here.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <div class="timeline-title">The Billionaire Menu</div>
+      <p class="timeline-text">We launched the Billionaire Menu with the Freyo Tower — 8 unique momos in one iconic serving. It sold out every weekend.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2022</div>
+      <div class="timeline-title">Pizza Momo Goes Viral</div>
+      <p class="timeline-text">Our flame-gun Pizza Momo became a sensation on Instagram. Hundreds of reels, thousands of views. The momo world would never be the same.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2024</div>
+      <div class="timeline-title">4.5 Stars & Growing</div>
+      <p class="timeline-text">With 222+ Google reviews and a loyal community, 1MM stands as one of the best-rated momo joints in Guwahati. We're just getting started.</p>
+    </div>
+  </div>
+
+  <div class="cta-strip">
+    <div>
+      <div class="cta-strip-text">COME TASTE<br>THE DIFFERENCE</div>
+      <div class="cta-strip-sub">Open daily · Closes 10:30 PM</div>
+    </div>
+    <button class="btn-dark" data-page="contact">
+      <i class="fa-solid fa-map-pin" style="margin-right:8px"></i>Get Directions
+    </button>
+  </div>
+
+</div><!-- /page-about -->
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- EVENTS PAGE -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="page" id="page-events">
+
+  <div class="menu-hero">
+    <div class="menu-hero-content">
+      <div class="section-label">What's Happening</div>
+      <h1 class="section-title">EVENTS &<br><span style="color:var(--orange)">SPECIALS</span></h1>
+      <p style="color:var(--muted);font-size:14px;margin-top:12px;font-family:var(--font-mono);letter-spacing:1px">
+        Seasonal drops · Limited offers · Community nights
+      </p>
+    </div>
+  </div>
+
+  <div class="events-grid">
+
+    <div class="event-card">
+      <div class="event-card-top">
+        <div class="event-date">27</div>
+        <div class="event-month">April 2026</div>
+      </div>
+      <div class="event-card-body">
+        <div class="event-title">Freyo Friday</div>
+        <p class="event-desc">Every last Friday of the month — buy 2 Freyo Towers, get a Banta Soda free. Show up with your squad.</p>
+        <div class="event-meta">
+          <span><i class="fa-solid fa-clock"></i> 6 PM – 10:30 PM</span>
+          <span><i class="fa-solid fa-location-dot"></i> Dine In Only</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="event-card-top">
+        <div class="event-date">01</div>
+        <div class="event-month">May 2026</div>
+      </div>
+      <div class="event-card-body">
+        <div class="event-title">New Flavour Drop</div>
+        <p class="event-desc">Something new is coming to the Billionaire Menu. We can't say what yet, but it involves fire, cheese, and zero regrets.</p>
+        <div class="event-meta">
+          <span><i class="fa-solid fa-fire"></i> All Day</span>
+          <span><i class="fa-solid fa-star"></i> Limited Stock</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="event-card-top">
+        <div class="event-date">10</div>
+        <div class="event-month">May 2026</div>
+      </div>
+      <div class="event-card-body">
+        <div class="event-title">Student Nights</div>
+        <p class="event-desc">Every second Saturday — 20% off for students with valid ID. Fuel your study sessions with the good stuff.</p>
+        <div class="event-meta">
+          <span><i class="fa-solid fa-graduation-cap"></i> Student ID req.</span>
+          <span><i class="fa-solid fa-percent"></i> 20% Off</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="event-card-top">
+        <div class="event-date">31</div>
+        <div class="event-month">May 2026</div>
+      </div>
+      <div class="event-card-body">
+        <div class="event-title">Momo Marathon</div>
+        <p class="event-desc">Eat 30 momos in under 30 minutes — your meal is on us. Champion gets a month of free momos. Think you can handle it?</p>
+        <div class="event-meta">
+          <span><i class="fa-solid fa-trophy"></i> Challenge</span>
+          <span><i class="fa-solid fa-clock"></i> 7 PM Onwards</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="event-card-top" style="background: linear-gradient(135deg, var(--black-3), var(--black-4))">
+        <div class="event-date" style="color:var(--orange)">?</div>
+        <div class="event-month" style="color:var(--muted)">Coming Soon</div>
+      </div>
+      <div class="event-card-body">
+        <div class="event-title">Mystery Event</div>
+        <p class="event-desc">Something big is being planned. Follow us on Instagram @one.in.a.million.momo to be the first to know.</p>
+        <div class="event-meta">
+          <span><i class="fa-brands fa-instagram"></i> @one.in.a.million.momo</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /page-events -->
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- CONTACT PAGE -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="page" id="page-contact">
+
+  <div class="menu-hero" style="min-height:30vh">
+    <div class="menu-hero-content">
+      <div class="section-label">Find Us</div>
+      <h1 class="section-title">GET IN<br><span style="color:var(--orange)">TOUCH</span></h1>
+    </div>
+  </div>
+
+  <div class="contact-grid">
+    <div class="contact-left">
+      <div class="contact-left-title">LET'S<br>MEET<br>OVER<br>MOMOS.</div>
+
+      <div class="contact-info-item">
+        <div class="contact-info-icon"><i class="fa-solid fa-location-dot"></i></div>
+        <div>
+          <div class="contact-info-label">Address</div>
+          <div class="contact-info-val">Kumarpara Panchali, KRC Road,<br>opp. Ganesh Mandir, Narayan Nagar,<br>Guwahati, Assam 781009</div>
+        </div>
+      </div>
+
+      <div class="contact-info-item">
+        <div class="contact-info-icon"><i class="fa-solid fa-phone"></i></div>
+        <div>
+          <div class="contact-info-label">Phone / WhatsApp</div>
+          <div class="contact-info-val">+91 60000 49703</div>
+        </div>
+      </div>
+
+      <div class="contact-info-item">
+        <div class="contact-info-icon"><i class="fa-solid fa-clock"></i></div>
+        <div>
+          <div class="contact-info-label">Hours</div>
+          <div class="contact-info-val">Open Daily<br>Closes 10:30 PM</div>
+        </div>
+      </div>
+
+      <div class="contact-info-item">
+        <div class="contact-info-icon"><i class="fa-brands fa-instagram"></i></div>
+        <div>
+          <div class="contact-info-label">Instagram</div>
+          <div class="contact-info-val">@one.in.a.million.momo</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="contact-right">
+      <div class="contact-form-title">SEND A MESSAGE</div>
+
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input type="text" class="form-input" placeholder="What should we call you?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone / Email</label>
+        <input type="text" class="form-input" placeholder="+91 or your email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea class="form-textarea" placeholder="Feedback, bulk orders, catering enquiries..."></textarea>
+      </div>
+      <button class="btn-primary" style="width:100%;text-align:center;display:block;padding:18px" onclick="alert('Message sent! We\'ll get back to you soon 🥟')">
+        <i class="fa-solid fa-paper-plane" style="margin-right:8px"></i>Send Message
+      </button>
+
+      <div style="margin-top:40px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.06)">
+        <p style="font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:16px;text-transform:uppercase">Also Order On</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="background:var(--black-3);border:1px solid rgba(255,255,255,0.08);padding:12px 20px;border-radius:4px;font-family:var(--font-mono);font-size:11px;color:var(--white-2);display:flex;align-items:center;gap:8px">
+            <i class="fa-solid fa-motorcycle" style="color:#e23744"></i>Zomato
+          </div>
+          <div style="background:var(--black-3);border:1px solid rgba(255,255,255,0.08);padding:12px 20px;border-radius:4px;font-family:var(--font-mono);font-size:11px;color:var(--white-2);display:flex;align-items:center;gap:8px">
+            <i class="fa-solid fa-bag-shopping" style="color:#fc8019"></i>Swiggy
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-contact -->
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- FOOTER -->
+<!-- ════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-brand-name"><span>1</span>MM</div>
+      <p class="footer-brand-desc">One in a Million Momo. Guwahati's finest hand-crafted dumplings, made fresh daily with love and 14 secret ingredients.</p>
+      <div class="footer-social" style="margin-top:24px">
+        <a href="#" class="social-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" class="social-btn" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        <a href="#" class="social-btn" title="Zomato"><i class="fa-solid fa-utensils"></i></a>
+      </div>
+    </div>
+    <div class="footer-links-group">
+      <div class="footer-links-title">Navigate</div>
+      <ul class="footer-links">
+        <li><a href="#" data-page="home">Home</a></li>
+        <li><a href="#" data-page="menu">Menu</a></li>
+        <li><a href="#" data-page="about">About</a></li>
+        <li><a href="#" data-page="events">Events</a></li>
+        <li><a href="#" data-page="contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-links-group">
+      <div class="footer-links-title">Menu</div>
+      <ul class="footer-links">
+        <li><a href="#" data-page="menu">Millionaire Menu</a></li>
+        <li><a href="#" data-page="menu">Billionaire Menu</a></li>
+        <li><a href="#" data-page="menu">Add-Ons</a></li>
+        <li><a href="#" data-page="menu">Freyo Tower</a></li>
+      </ul>
+    </div>
+    <div class="footer-links-group">
+      <div class="footer-links-title">Contact</div>
+      <ul class="footer-links" style="font-style:normal">
+        <li style="color:var(--muted);font-size:13px">KRC Road, Guwahati</li>
+        <li style="color:var(--muted);font-size:13px">+91 60000 49703</li>
+        <li style="color:var(--muted);font-size:13px">Open until 10:30 PM</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 <span>1MM</span> — One in a Million Momo. All rights reserved.</div>
+    <div class="footer-hours">
+      <div class="online-dot"></div>
+      Open Now · Closes 10:30 PM
+    </div>
+  </div>
+</footer>
+
+<!-- ─── SCRIPTS ──────────────────────────────────────── -->
+<script>
+  // ── Cursor ──────────────────────────────────────────
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  document.addEventListener('mousemove', e => {
+    dot.style.left = e.clientX + 'px';
+    dot.style.top  = e.clientY + 'px';
+    ring.style.left = e.clientX + 'px';
+    ring.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, [data-page]').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.style.transform = 'translate(-50%,-50%) scale(1.8)');
+    el.addEventListener('mouseleave', () => ring.style.transform = 'translate(-50%,-50%) scale(1)');
+  });
+
+  // ── Loader ──────────────────────────────────────────
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('hidden');
+    }, 1600);
+  });
+
+  // ── Scroll progress ─────────────────────────────────
+  window.addEventListener('scroll', () => {
+    const prog = document.getElementById('scrollProgress');
+    const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    prog.style.width = pct + '%';
+    // Nav scroll state
+    document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // ── SPA Router ──────────────────────────────────────
+  function navigate(page) {
+    const transition = document.getElementById('pageTransition');
+    transition.classList.add('enter');
+    setTimeout(() => {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('page-' + page);
+      if (target) target.classList.add('active');
+      document.querySelectorAll('.nav-links a').forEach(a => {
+        a.classList.toggle('active', a.dataset.page === page);
+      });
+      window.scrollTo(0, 0);
+      transition.classList.remove('enter');
+      transition.classList.add('exit');
+      setTimeout(() => transition.classList.remove('exit'), 400);
+      initReveal();
+    }, 350);
+  }
+
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-page]');
+    if (el && el.dataset.page) {
+      e.preventDefault();
+      // Close mobile menu if open
+      document.getElementById('mobileMenu').classList.remove('open');
+      document.getElementById('burgerBtn').classList.remove('open');
+      navigate(el.dataset.page);
+    }
+  });
+
+  // ── Burger ──────────────────────────────────────────
+  document.getElementById('burgerBtn').addEventListener('click', () => {
+    const isOpen = document.getElementById('mobileMenu').classList.toggle('open');
+    document.getElementById('burgerBtn').classList.toggle('open', isOpen);
+  });
+
+  // ── Menu tabs ───────────────────────────────────────
+  document.getElementById('menuTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.tab-btn');
+    if (!btn) return;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.menu-category').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    const target = document.getElementById('tab-' + btn.dataset.tab);
+    if (target) target.classList.add('active');
+  });
+
+  // ── Reveal on scroll ────────────────────────────────
+  function initReveal() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => {
+      el.classList.remove('visible');
+      observer.observe(el);
+    });
+  }
+  initReveal();
+</script>
+
+</body>
+</html>
